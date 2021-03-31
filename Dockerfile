@@ -1,9 +1,12 @@
 FROM golang AS build
 
+ENV CGO_ENABLED=1
+
 WORKDIR /app
 ADD src ./src
 WORKDIR src
-RUN CGO_ENABLED=0 go build -o /out/server .
+RUN go get github.com/mattn/go-sqlite3
+RUN go build -tags netgo -a -o /out/server .
 
 FROM scratch
 

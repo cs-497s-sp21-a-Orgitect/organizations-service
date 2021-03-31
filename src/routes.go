@@ -7,5 +7,5 @@ import (
 var router = http.NewServeMux()
 
 func InitRoutes() {
-    router.HandleFunc("/", Index)
+    router.HandleFunc("/organizations", Index)
 }

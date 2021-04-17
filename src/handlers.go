@@ -3,18 +3,17 @@ package main
 import (
     "net/http"
     "encoding/json"
-    "github.com/mattn/go-sqlite3"
+    _ "github.com/mattn/go-sqlite3"
     "database/sql"
+   // "strconv"
+    "fmt"
 )
 
-var db Conn
+var db *sql.DB
 
-func Exec(command string) (runner) { // TODO add an ORM (look at gorm.io)
+func Exec(command string) func(...interface {}) (sql.Result, error) { // TODO add an ORM (look at gorm.io)
     statement, _ := db.Prepare(command)
-    runner := func(params ...string) {
-        statement.Exec(params)
-    }
-    return
+    return statement.Exec
 }
 
 /*func Query(command string) (runner) {
@@ -23,7 +22,7 @@ func Exec(command string) (runner) { // TODO add an ORM (look at gorm.io)
 
 func InitDb() {
     db, _ = sql.Open("sqlite3", "file::memory:?cache=shared")
-    db.Exec("CREATE TABLE IF NOT EXISTS organizations (id INTEGER PRIMARY KEY, name TEXT, free_trial BOOLEAN")()
+    Exec("CREATE TABLE IF NOT EXISTS organizations (id INTEGER PRIMARY KEY, name TEXT, free_trial BOOLEAN")()
 }
 
 func Index(res http.ResponseWriter, req *http.Request) {
@@ -32,7 +31,8 @@ func Index(res http.ResponseWriter, req *http.Request) {
     case http.MethodPost:
         var org Organization
         json.NewDecoder(req.Body).Decode(&org)
-        db.Exec("INSERT INTO TABLE organizations (name, free_trial) VALUES (?, ?)")(org.Name, org.FreeTrial)
+        fmt.Printf("%+v\n", org)
+        Exec("INSERT INTO TABLE organizations (name, free_trial) VALUES (?, ?)")(org.Name, "false")//strconv.FormatBool(org.FreeTrial))
     }
     result := Organization{Name: "Test Org", FreeTrial: true}
     res.Header().Set("Content-Type", "application/json")

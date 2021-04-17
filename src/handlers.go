@@ -5,26 +5,31 @@ import (
     "encoding/json"
     "gorm.io/gorm"
     "gorm.io/driver/sqlite"
-    "fmt"
+    //"fmt"
 )
 
-var db *sql.DB
+var db *gorm.DB
 
 func InitDb() {
-    db, _ = gorm.Open(sqlite3.Open("file::memory:?cache=shared"), &gorm.Config{})
-    Exec("CREATE TABLE IF NOT EXISTS organizations (id INTEGER PRIMARY KEY, name TEXT, free_trial BOOLEAN);")()
+    var err error
+    db, err = gorm.Open(sqlite.Open("file::memory:?cache=shared"), &gorm.Config{})
+    if err != nil {
+        panic("failed to connect database")
+    }
+    db.AutoMigrate(&Organization{})
 }
 
 func Index(res http.ResponseWriter, req *http.Request) {
     switch req.Method {
     case http.MethodGet:
+        var org Organization
+        db.First(&org, "name = ?", req.URL.Query().Get("name"))
+        json.NewEncoder(res).Encode(org)
     case http.MethodPost:
         var org Organization
         json.NewDecoder(req.Body).Decode(&org)
-        fmt.Printf("%+v\n", org)
-        Exec("INSERT INTO organizations(name, free_trial) VALUES(?, ?);")(org.Name, org.FreeTrial)
+        db.Create(&org)
+        res.WriteHeader(http.StatusCreated)
     }
-    result := Organization{Name: "Test Org", FreeTrial: true}
     res.Header().Set("Content-Type", "application/json")
-    json.NewEncoder(res).Encode(result)
 }

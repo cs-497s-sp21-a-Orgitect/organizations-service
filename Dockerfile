@@ -1,18 +1,19 @@
 FROM golang AS build
 
-ENV CGO_ENABLED=0
-RUN go get gorm.io/gorm
-RUN go get gorm.io/driver/sqlite
+ENV CGO_ENABLED=1
+ENV GO111MOD=on
 
-WORKDIR /app
-ADD src ./src
-WORKDIR src
-RUN go mod download gorm.io/gorm
-RUN go mod download gorm.io/driver/sqlite
+WORKDIR /app/src
+COPY src/go.mod .
+COPY src/go.sum .
+
+RUN go mod download
+
+ADD src .
+
 RUN go build -tags netgo -a -o /out/server .
 
-FROM alpine
-
+FROM debian:stable-slim
 COPY --from=build /out/server /server
 
 ENTRYPOINT ["/server"]

@@ -4,7 +4,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>User Editor</title>
+    <title>Organization Manager</title>
 
     <!-- Bootstrap core CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/css/bootstrap.min.css" rel="stylesheet"
@@ -17,7 +17,7 @@
     <main class="container">
 
         <div class="text-center py-5">
-            <h1 class="display-1">User Editor</h1>
+            <h1 class="display-1">Organization Manager</h1>
         </div>
 
         <div class="select-post">
@@ -46,16 +46,16 @@
         </div>
 
         <div id="field-id">
-            <label for="user-id" class="form-label">ID</label>
-            <input type="number" id="user-id" class="form-control">
+            <label for="org-id" class="form-label">ID</label>
+            <input type="number" id="org-id" class="form-control">
         </div>
         <div id="field-name">
-            <label for="user-name" class="form-label">Name</label>
-            <input type="text" id="user-name" class="form-control">
+            <label for="org-name" class="form-label">Name</label>
+            <input type="text" id="org-name" class="form-control">
         </div>
-        <div id="field-age">
-            <label for="user-age" class="form-label">Age</label>
-            <input type="number" id="user-age" class="form-control">
+        <div id="field-trial">
+            <label for="org-trial" class="form-label">Trial: </label>
+            <input type="checkbox" id="org-trial">
         </div>
 
         <button class="btn btn-lg btn-primary m-4" onclick="sendRequest()">Execute</button>

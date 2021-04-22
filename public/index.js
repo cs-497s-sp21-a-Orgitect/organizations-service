@@ -1,18 +1,20 @@
 function sendRequest() {
     (async () => {
         const httpMethod = Array.from(document.getElementsByName('typeSelector')).filter(element => element.checked)[0].value
-        let url = '/user'
-        let id = document.getElementById('user-id').value
-        let name = document.getElementById('user-name').value
-        let age = document.getElementById('user-age').value
+        let url = '/organizations'
+        let id = document.getElementById('org-id').value
+        let name = document.getElementById('org-name').value
+        let trial = document.getElementById('org-trial').checked
         let requestBody = {
-            id: id,
             name: name,
-            age: age
+            trial: trial
         }
         if (httpMethod === 'GET') {
             url += `?id=${id}`
             requestBody = undefined
+        }
+        if (httpMethod === 'DELETE') {
+            url += `/${id}`
         }
         const response = await fetch(url, {
             headers: { "Content-Type": "application/json" },
@@ -34,7 +36,7 @@ function sendRequest() {
             responseString += "Error! "
             switch (response.status) {
                 case 404:
-                    responseString += "The user you entered does not exist."
+                    responseString += "The organization you entered does not exist."
                     break
                 case 400:
                     responseString += "Check that the formatting of your form entries are correct and try again."
@@ -53,7 +55,7 @@ idOnlyBoxes.forEach(box => box.addEventListener('change', function () {
     if (this.checked) {
         document.getElementById('field-id').style.display = 'block'
         document.getElementById('field-name').style.display = 'none'
-        document.getElementById('field-age').style.display = 'none'
+        document.getElementById('field-trial').style.display = 'none'
     }
 }))
 
@@ -61,7 +63,7 @@ document.getElementById('post').addEventListener('change', function () {
     if (this.checked) {
         document.getElementById('field-id').style.display = 'none'
         document.getElementById('field-name').style.display = 'block'
-        document.getElementById('field-age').style.display = 'block'
+        document.getElementById('field-trial').style.display = 'block'
     }
 })
 
@@ -69,7 +71,7 @@ document.getElementById('patch').addEventListener('change', function () {
     if (this.checked) {
         document.getElementById('field-id').style.display = 'block'
         document.getElementById('field-name').style.display = 'block'
-        document.getElementById('field-age').style.display = 'block'
+        document.getElementById('field-trial').style.display = 'block'
     }
 })
 

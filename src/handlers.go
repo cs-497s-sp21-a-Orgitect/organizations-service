@@ -13,7 +13,7 @@ func InitDb() {
     var err error
     db, err = gorm.Open(sqlite.Open("file::memory:?cache=shared"), &gorm.Config{})
     if err != nil {
-        panic("failed to connect database")
+        panic("Error starting database")
     }
     db.AutoMigrate(&Organization{})
 }

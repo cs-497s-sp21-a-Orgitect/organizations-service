@@ -7,6 +7,5 @@ import (
 type Organization struct {
     gorm.Model
     Name string
-    Id int
     FreeTrial bool
 }

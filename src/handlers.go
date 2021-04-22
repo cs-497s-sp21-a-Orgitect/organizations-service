@@ -6,6 +6,7 @@ import (
     "gorm.io/gorm"
     "gorm.io/driver/sqlite"
     "errors"
+    "strings"
 )
 
 var db *gorm.DB
@@ -22,6 +23,7 @@ func InitDb() {
 }
 
 func Org(res http.ResponseWriter, req *http.Request) {
+    res.Header().Set("Content-Type", "application/json")
     switch req.Method {
     case http.MethodGet:
         var org Organization
@@ -41,13 +43,26 @@ func Org(res http.ResponseWriter, req *http.Request) {
         json.NewDecoder(req.Body).Decode(&org)
         db.Create(&org)
         res.WriteHeader(http.StatusCreated)
+    case http.MethodDelete:
+        var org Organization
+        organizationId := strings.TrimPrefix(req.URL.Path, "/organizations/")
+        if organizationId != "" {
+            queryResult := db.First(&org, "ID = ?", organizationId)
+            if errors.Is(queryResult.Error, gorm.ErrRecordNotFound) {
+                res.WriteHeader(http.StatusNotFound)
+            } else {
+                db.Delete(&org)
+                res.WriteHeader(http.StatusNoContent)
+            }
+        } else {
+            res.WriteHeader(http.StatusBadRequest)
+        }
     }
-    res.Header().Set("Content-Type", "application/json")
 }
 
 func Mem(res http.ResponseWriter, req *http.Request) {
+    res.Header().Set("Content-Type", "application/json")
     switch req.Method {
     case http.MethodGet:
     }
-    res.Header().Set("Content-Type", "application/json")
 }

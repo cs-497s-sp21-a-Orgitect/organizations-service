@@ -7,6 +7,7 @@ import (
     "gorm.io/driver/sqlite"
     "errors"
     "strings"
+    "log"
 )
 
 var db *gorm.DB
@@ -27,22 +28,43 @@ func Org(res http.ResponseWriter, req *http.Request) {
     switch req.Method {
     case http.MethodGet:
         var org Organization
+        var queryResult *gorm.DB
         name := req.URL.Query().Get("name") // get the query parameter, ?name=...
-        if name != "" {
-            queryResult := db.First(&org, "name = ?", req.URL.Query().Get("name")) // search for organizations in the database matching this name
-            if errors.Is(queryResult.Error, gorm.ErrRecordNotFound) {
-                res.WriteHeader(http.StatusNotFound)
-            } else {
-                json.NewEncoder(res).Encode(org)
-            }
+        id := req.URL.Query().Get("id")
+        if name != "" && id != "" {
+            queryResult = db.First(&org, "name = ?, id = ?", name, id) // search for organizations in the database matching this name
+        } else if name != "" {
+            queryResult = db.First(&org, "name = ?", name)
+        } else if id != "" {
+            queryResult = db.First(&org, "id = ?", id)
         } else {
             res.WriteHeader(http.StatusBadRequest)
+            return
+        }
+        if errors.Is(queryResult.Error, gorm.ErrRecordNotFound) {
+            res.WriteHeader(http.StatusNotFound)
+        } else {
+            json.NewEncoder(res).Encode(org)
         }
     case http.MethodPost:
         var org Organization
         json.NewDecoder(req.Body).Decode(&org)
         db.Create(&org)
         res.WriteHeader(http.StatusCreated)
+    case http.MethodPatch:
+        var org Organization
+        var idToChange IdHolder
+        json.NewDecoder(req.Body).Decode(&idToChange)
+        queryResult := db.First(&org, "ID = ?", idToChange.Id)
+        if errors.Is(queryResult.Error, gorm.ErrRecordNotFound) {
+            res.WriteHeader(http.StatusNotFound)
+        } else {
+            json.NewDecoder(req.Body).Decode(&org)
+            log.Print(org.Name)
+            log.Print(org.FreeTrial)
+            db.Save(&org)
+            res.WriteHeader(http.StatusNoContent)
+        }
     case http.MethodDelete:
         var org Organization
         organizationId := strings.TrimPrefix(req.URL.Path, "/organizations/")

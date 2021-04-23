@@ -7,7 +7,8 @@ function sendRequest() {
         let trial = document.getElementById('org-trial').checked
         let requestBody = {
             name: name,
-            trial: trial
+            trial: trial,
+            id: id
         }
         if (httpMethod === 'GET') {
             url += `?id=${id}`

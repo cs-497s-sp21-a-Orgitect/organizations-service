@@ -7,7 +7,7 @@ import (
     "gorm.io/driver/sqlite"
     "errors"
     "strings"
-    "log"
+    //"log"
 )
 
 var db *gorm.DB
@@ -59,9 +59,10 @@ func Org(res http.ResponseWriter, req *http.Request) {
         if errors.Is(queryResult.Error, gorm.ErrRecordNotFound) {
             res.WriteHeader(http.StatusNotFound)
         } else {
-            json.NewDecoder(req.Body).Decode(&org)
-            log.Print(org.Name)
-            log.Print(org.FreeTrial)
+            var newOrg Organization
+            json.NewDecoder(req.Body).Decode(&newOrg)
+            org.Name = newOrg.Name
+            org.FreeTrial = newOrg.FreeTrial
             db.Save(&org)
             res.WriteHeader(http.StatusNoContent)
         }

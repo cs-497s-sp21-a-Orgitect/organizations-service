@@ -2,13 +2,12 @@ function sendRequest() {
     (async () => {
         const httpMethod = Array.from(document.getElementsByName('typeSelector')).filter(element => element.checked)[0].value
         let url = '/organizations'
-        let id = document.getElementById('org-id').value
+        let id = +document.getElementById('org-id').value
         let name = document.getElementById('org-name').value
         let trial = document.getElementById('org-trial').checked
         let requestBody = {
             name: name,
-            trial: trial,
-            id: id
+            trial: trial
         }
         if (httpMethod === 'GET') {
             url += `?id=${id}`
@@ -16,6 +15,9 @@ function sendRequest() {
         }
         if (httpMethod === 'DELETE') {
             url += `/${id}`
+        }
+        if (httpMethod === 'PATCH') {
+            requestBody.id = id
         }
         const response = await fetch(url, {
             headers: { "Content-Type": "application/json" },

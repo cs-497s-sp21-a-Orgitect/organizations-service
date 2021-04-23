@@ -11,5 +11,5 @@ type Organization struct {
 }
 
 type IdHolder struct {
-    Id int `json:"id,string"` // the string tells decoder to convert id that might be a string into a number
+    Id int `json:"id"`
 }

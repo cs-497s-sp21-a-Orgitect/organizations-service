@@ -6,9 +6,6 @@ import (
     "gorm.io/gorm"
     "gorm.io/driver/sqlite"
     "errors"
-    "strings"
-    "fmt"
-    "bytes"
 )
 
 var db *gorm.DB
@@ -63,13 +60,6 @@ func Org(res http.ResponseWriter, req *http.Request) {
             json.NewDecoder(body).Decode(&newOrg)
             org.Name = newOrg.Name
             org.FreeTrial = newOrg.FreeTrial
-            // begin debug code
-            fmt.Printf("%+v\n", org)
-            fmt.Printf("%+v\n", newOrg)
-            buf := new(bytes.Buffer)
-            buf.ReadFrom(body)
-            fmt.Print(len(buf.String()))
-            // end debug code
             db.Save(&org)
             res.WriteHeader(http.StatusNoContent)
         }

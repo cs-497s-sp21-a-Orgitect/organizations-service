@@ -26,9 +26,10 @@ func InitDb() {
 
 func Org(res http.ResponseWriter, req *http.Request) {
     res.Header().Set("Content-Type", "application/json")
+    var org Organization
+    body := req.Body
     switch req.Method {
     case http.MethodGet:
-        var org Organization
         var queryResult *gorm.DB
         name := req.URL.Query().Get("name") // get the query parameter, ?name=...
         id := req.URL.Query().Get("id")
@@ -48,34 +49,31 @@ func Org(res http.ResponseWriter, req *http.Request) {
             json.NewEncoder(res).Encode(org)
         }
     case http.MethodPost:
-        var org Organization
-        json.NewDecoder(req.Body).Decode(&org)
+        json.NewDecoder(body).Decode(&org)
         db.Create(&org)
         res.WriteHeader(http.StatusCreated)
     case http.MethodPatch:
-        var org Organization
         var idToChange IdHolder
-        json.NewDecoder(req.Body).Decode(&idToChange)
+        json.NewDecoder(body).Decode(&idToChange)
         queryResult := db.First(&org, "ID = ?", idToChange.Id)
         if errors.Is(queryResult.Error, gorm.ErrRecordNotFound) {
             res.WriteHeader(http.StatusNotFound)
         } else {
             var newOrg Organization
-            json.NewDecoder(req.Body).Decode(&newOrg)
+            json.NewDecoder(body).Decode(&newOrg)
             org.Name = newOrg.Name
             org.FreeTrial = newOrg.FreeTrial
             // begin debug code
             fmt.Printf("%+v\n", org)
             fmt.Printf("%+v\n", newOrg)
             buf := new(bytes.Buffer)
-            buf.ReadFrom(req.Body)
+            buf.ReadFrom(body)
             fmt.Print(len(buf.String()))
             // end debug code
             db.Save(&org)
             res.WriteHeader(http.StatusNoContent)
         }
     case http.MethodDelete:
-        var org Organization
         organizationId := strings.TrimPrefix(req.URL.Path, "/organizations/")
         if organizationId != "" {
             queryResult := db.First(&org, "ID = ?", organizationId)

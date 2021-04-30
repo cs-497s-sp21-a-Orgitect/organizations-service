@@ -6,6 +6,9 @@ import (
     "gorm.io/gorm"
     "gorm.io/driver/sqlite"
     "errors"
+    "strings"
+    "io/ioutil"
+    "bytes"
 )
 
 var db *gorm.DB
@@ -24,7 +27,7 @@ func InitDb() {
 func Org(res http.ResponseWriter, req *http.Request) {
     res.Header().Set("Content-Type", "application/json")
     var org Organization
-    body := req.Body
+    body, _ := ioutil.ReadAll(req.Body) // if the body itself is read again after the first read, it will be nil
     switch req.Method {
     case http.MethodGet:
         var queryResult *gorm.DB
@@ -46,18 +49,18 @@ func Org(res http.ResponseWriter, req *http.Request) {
             json.NewEncoder(res).Encode(org)
         }
     case http.MethodPost:
-        json.NewDecoder(body).Decode(&org)
+        json.NewDecoder(bytes.NewReader(body)).Decode(&org)
         db.Create(&org)
         res.WriteHeader(http.StatusCreated)
     case http.MethodPatch:
         var idToChange IdHolder
-        json.NewDecoder(body).Decode(&idToChange)
+        json.NewDecoder(bytes.NewReader(body)).Decode(&idToChange)
         queryResult := db.First(&org, "ID = ?", idToChange.Id)
         if errors.Is(queryResult.Error, gorm.ErrRecordNotFound) {
             res.WriteHeader(http.StatusNotFound)
         } else {
             var newOrg Organization
-            json.NewDecoder(body).Decode(&newOrg)
+            json.NewDecoder(bytes.NewReader(body)).Decode(&newOrg)
             org.Name = newOrg.Name
             org.FreeTrial = newOrg.FreeTrial
             db.Save(&org)
